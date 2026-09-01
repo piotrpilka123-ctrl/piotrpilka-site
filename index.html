@@ -197,9 +197,21 @@
   .prose p{margin-bottom:1.05rem}
   .prose p:last-child{margin-bottom:0}
   .prose .aside{
-    margin-top:1.5rem;font-size:.94rem;color:var(--muted);
+    margin-top:1.6rem;font-size:.94rem;color:var(--muted);
   }
   .prose .aside b{color:var(--text);font-weight:600}
+
+  .deflist{display:flex;flex-direction:column;margin:0}
+  .deflist .row2{
+    display:grid;grid-template-columns:9rem 1fr;gap:.45rem 1.5rem;
+    padding:1rem 0;border-top:1px solid var(--hair);align-items:start;
+  }
+  .deflist .row2:first-child{border-top:0;padding-top:0}
+  .deflist dt{
+    font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent);padding-top:.25rem;
+  }
+  .deflist dd{margin:0;color:var(--muted)}
 
   /* two-column rows (experience / education) */
   .rows{display:flex;flex-direction:column}
@@ -303,8 +315,8 @@
   }
 
   @media (max-width:620px){
-    .entry,.skills .grp{grid-template-columns:1fr;gap:.5rem}
-    .entry .period,.skills dt{padding-top:0}
+    .entry,.skills .grp,.deflist .row2{grid-template-columns:1fr;gap:.5rem}
+    .entry .period,.skills dt,.deflist dt{padding-top:0}
     .clist .ci{flex-wrap:wrap}
     .clist .ck{width:auto}
     .clist .arw{display:none}
@@ -358,12 +370,28 @@
         <h2 data-en="Professional profile">Profil zawodowy</h2>
       </div>
       <div class="prose">
-        <p data-en="It all started at an IT technical school. While I was still a student I did an internship in an IT department, then I helped companies remotely, and now I work in customer support at Symfonia. Along the way I've worked with Windows, Microsoft 365 and Azure, and I'm still learning them as I go. What I can already do well is find the cause of a problem, read through logs, and calmly sort things out with someone whose system is down and who needs help right now.">
-          Wszystko zaczęło się w technikum informatycznym. Jeszcze jako uczeń poszedłem na praktyki do działu IT, potem pomagałem zdalnie firmom, a teraz pracuję w obsłudze klienta w Symfonii. Po drodze pracowałem z Windows, Microsoft 365 i Azure i wciąż się ich uczę w praktyce. Na pewno umiem już znaleźć przyczynę problemu, przejrzeć logi i na spokojnie dogadać się z kimś, kto ma awarię i potrzebuje pomocy od ręki.
-        </p>
-        <p data-en="Right now I'm studying cybersecurity at UTH in Warsaw and I want to stay in IT for the long run. I work best where both technical knowledge and a normal conversation with a person matter. I'm comfortable in a team. I like asking a lot of questions and I often come back to the same topic from different angles to really understand it. I don't give up on the harder tickets.">
-          Teraz studiuję cyberbezpieczeństwo na UTH w Warszawie i chcę zostać w IT na dłużej. Najlepiej pracuje mi się tam, gdzie liczy się zarówno wiedza techniczna, jak i zwykła rozmowa z człowiekiem. Dobrze czuję się w zespole. Lubię dużo pytać i często wracam do tego samego tematu z kilku stron, żeby naprawdę go zrozumieć. Przy trudniejszych zgłoszeniach się nie poddaję.
-        </p>
+        <dl class="deflist">
+          <div class="row2">
+            <dt data-en="Path into IT">Droga do IT</dt>
+            <dd data-en="IT technical school, an internship in an IT department while still at school, then remote support for companies, and now customer support at Symfonia.">Technikum informatyczne, praktyki w dziale IT jeszcze w szkole, potem zdalne wsparcie dla firm, a teraz obsługa klienta w Symfonii.</dd>
+          </div>
+          <div class="row2">
+            <dt data-en="Day to day">Na co dzień</dt>
+            <dd data-en="I work with Windows, Microsoft 365 and Azure, and I'm still learning them as I go.">Pracuję z Windows, Microsoft 365 i Azure i cały czas się ich uczę w praktyce.</dd>
+          </div>
+          <div class="row2">
+            <dt data-en="What I'm good at">Mocne strony</dt>
+            <dd data-en="I find the cause of a problem quickly, read through logs, and calmly sort things out with someone whose system is down and needs help right now.">Szybko znajduję przyczynę problemu, czytam logi i na spokojnie dogaduję się z kimś, kto ma awarię i potrzebuje pomocy od ręki.</dd>
+          </div>
+          <div class="row2">
+            <dt data-en="Still learning">Uczę się</dt>
+            <dd data-en="I'm studying cybersecurity at UTH in Warsaw and that's the direction I want to grow in.">Studiuję cyberbezpieczeństwo na UTH w Warszawie i w tę stronę chcę się rozwijać.</dd>
+          </div>
+          <div class="row2">
+            <dt data-en="How I work">Jak pracuję</dt>
+            <dd data-en="I'm comfortable in a team, I like asking a lot of questions and coming back to a topic from different angles to really understand it. I don't give up on the harder tickets.">Dobrze czuję się w zespole, lubię dużo pytać i wracać do tematu z kilku stron, żeby go naprawdę zrozumieć. Przy trudniejszych zgłoszeniach się nie poddaję.</dd>
+          </div>
+        </dl>
         <p class="aside" data-en="<b>After hours:</b> I'm into artificial intelligence, and I like photo shoots and being in front of a camera."><b>Po godzinach:</b> interesuję się sztuczną inteligencją, lubię sesje zdjęciowe i występowanie przed kamerą.</p>
       </div>
     </section>
