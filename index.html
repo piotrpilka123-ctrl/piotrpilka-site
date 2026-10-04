@@ -727,49 +727,60 @@
     var w=BASE, h=BASE, left=cx-w/2, top=cy-h/2, rad=BASE/2;
     var hoverEl=null;
 
+    var lcRunning=false;
+    function lcWake(){ if(!lcRunning){ lcRunning=true; requestAnimationFrame(lcFrame); } }
+
     document.addEventListener("mousemove",function(e){
       mx=e.clientX; my=e.clientY;
       if(!started){ started=true; cx=mx; cy=my; tx=mx; ty=my; lc.style.opacity=1; }
+      lcWake();
     },{passive:true});
     document.addEventListener("mouseleave",function(){ lc.style.opacity=0; lcTrail.style.opacity=0; });
 
     var LC_SEL=".tag,.primary,.ghost,a,button,.portrait .frame,.tg";
+    var hoverRect=null, hoverRad=10;
+    function lcCaptureHover(){
+      if(!hoverEl) return;
+      hoverRect=hoverEl.getBoundingClientRect();
+      hoverRad=parseFloat(getComputedStyle(hoverEl).borderRadius)||10;
+    }
     document.addEventListener("mouseover",function(e){
       var el=e.target.closest(LC_SEL);
-      if(el){ hoverEl=el; lc.classList.add("merge"); lcTrail.style.opacity=0; }
+      if(el){ hoverEl=el; lc.classList.add("merge"); lcTrail.style.opacity=0; lcCaptureHover(); lcWake(); }
     });
     document.addEventListener("mouseout",function(e){
       if(!hoverEl) return;
       var to=e.relatedTarget;
-      if(!to || !to.closest || !to.closest(LC_SEL)){ hoverEl=null; lc.classList.remove("merge"); }
+      if(!to || !to.closest || !to.closest(LC_SEL)){ hoverEl=null; hoverRect=null; lc.classList.remove("merge"); lcWake(); }
     });
+    window.addEventListener("scroll",function(){ if(hoverEl){ lcCaptureHover(); lcWake(); } },{passive:true});
+    window.addEventListener("resize",function(){ if(hoverEl) lcCaptureHover(); lcWake(); },{passive:true});
 
     function lcFrame(){
-      requestAnimationFrame(lcFrame);
       cx += (mx-cx)*0.35; cy += (my-cy)*0.35;
       var vx=cx-pcx, vy=cy-pcy; pcx=cx; pcy=cy;
       tx += (cx-tx)*0.12; ty += (cy-ty)*0.12;
       var speed=Math.min(Math.hypot(vx,vy),20);
+      var settled = speed<0.03 && Math.abs(mx-cx)<0.05 && Math.abs(my-cy)<0.05 && Math.abs(cx-tx)<0.05 && Math.abs(cy-ty)<0.05;
 
-      if(hoverEl){
-        var r=hoverEl.getBoundingClientRect();
-        var pad=8;
+      if(hoverEl && hoverRect){
+        var r=hoverRect, pad=8;
         var tw=r.width+pad*2, th=r.height+pad*2;
         var tl=r.left-pad, tt=r.top-pad;
-        var cs=getComputedStyle(hoverEl);
-        var er=parseFloat(cs.borderRadius)||10;
-        w += (tw-w)*0.22; h += (th-h)*0.22;
-        left += (tl-left)*0.22; top += (tt-top)*0.22;
-        rad += ((er+pad)-rad)*0.22;
+        var dw=tw-w, dh=th-h, dl=tl-left, dt=tt-top, dr=(hoverRad+pad)-rad;
+        w+=dw*0.22; h+=dh*0.22; left+=dl*0.22; top+=dt*0.22; rad+=dr*0.22;
         lc.style.transform="";
+        settled = settled && Math.abs(dw)<0.1 && Math.abs(dh)<0.1 && Math.abs(dl)<0.1 && Math.abs(dt)<0.1;
       }else{
-        w += (BASE-w)*0.25; h += (BASE-h)*0.25;
+        var dw2=BASE-w, dh2=BASE-h;
+        w+=dw2*0.25; h+=dh2*0.25;
         left = cx-w/2; top = cy-h/2;
         rad += (w/2-rad)*0.25;
         var angle=Math.atan2(vy,vx)*180/Math.PI;
         var stretch=Math.min(speed/20,1);
         var sx=1+stretch*0.85, sy=1-stretch*0.32;
         lc.style.transform="rotate("+angle.toFixed(1)+"deg) scale("+sx.toFixed(3)+","+sy.toFixed(3)+")";
+        settled = settled && Math.abs(dw2)<0.1 && Math.abs(dh2)<0.1 && stretch<0.01;
       }
 
       lc.style.left=left.toFixed(1)+"px";
@@ -784,8 +795,9 @@
       lcTrail.style.opacity = tOp;
       var tScale=0.6+Math.min(speed/16,0.8);
       lcTrail.style.transform="scale("+tScale.toFixed(2)+")";
+
+      if(settled){ lcRunning=false; } else { requestAnimationFrame(lcFrame); }
     }
-    requestAnimationFrame(lcFrame);
   }
 
   /* ---- reveal on scroll ---- */
