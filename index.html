@@ -83,6 +83,34 @@
   a{color:inherit;text-decoration:none}
   :focus-visible{outline:none;box-shadow:var(--ring);border-radius:6px}
 
+  /* liquid cursor: glossy water-drop that smears with motion and engulfs interactive elements */
+  @media (hover:hover) and (pointer:fine){
+    *{cursor:none}
+    #lc,#lc-trail{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;opacity:0;will-change:transform,width,height,left,top,border-radius}
+    #lc-trail{
+      width:14px;height:14px;border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--accent) 70%,white) 0%, color-mix(in srgb,var(--accent) 45%,transparent) 60%, transparent 80%);
+      filter:blur(2px);
+    }
+    #lc{
+      background:
+        radial-gradient(circle at 30% 26%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.25) 28%, transparent 45%),
+        radial-gradient(circle at 62% 70%, color-mix(in srgb,var(--accent) 55%,transparent) 0%, color-mix(in srgb,var(--accent) 20%,transparent) 55%, transparent 75%),
+        color-mix(in srgb,var(--accent) 35%,transparent);
+      box-shadow:0 2px 10px color-mix(in srgb,var(--accent) 35%,transparent), inset 0 0 5px rgba(255,255,255,.55);
+      transition:background .2s ease, box-shadow .2s ease;
+    }
+    #lc.merge{
+      background:
+        radial-gradient(circle at 24% 18%, rgba(255,255,255,.5) 0%, transparent 42%),
+        color-mix(in srgb,var(--accent) 12%,transparent);
+      box-shadow:
+        inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 70%,transparent),
+        inset 0 0 20px color-mix(in srgb,var(--accent) 25%,transparent),
+        0 8px 26px color-mix(in srgb,var(--accent) 22%,transparent);
+    }
+  }
+
   .wrap{width:100%;max-width:760px;margin-inline:auto;padding-inline:clamp(1.15rem,5vw,1.75rem)}
 
   /* violet matrix-rain backdrop */
@@ -669,6 +697,80 @@
       });
       pf.addEventListener("mouseleave",function(){ pf.style.transform=""; });
     }
+  }
+
+  /* ---- liquid cursor: glossy droplet that stretches with motion and engulfs interactive elements ---- */
+  if(!reduce && window.matchMedia("(hover:hover) and (pointer:fine)").matches){
+    var lc=document.createElement("div"); lc.id="lc";
+    var lcTrail=document.createElement("div"); lcTrail.id="lc-trail";
+    document.body.appendChild(lcTrail);
+    document.body.appendChild(lc);
+
+    var mx=window.innerWidth/2, my=window.innerHeight/2, started=false;
+    var BASE=16;
+    var cx=mx, cy=my, tx=mx, ty=my, pcx=cx, pcy=cy;
+    var w=BASE, h=BASE, left=cx-w/2, top=cy-h/2, rad=BASE/2;
+    var hoverEl=null;
+
+    document.addEventListener("mousemove",function(e){
+      mx=e.clientX; my=e.clientY;
+      if(!started){ started=true; cx=mx; cy=my; tx=mx; ty=my; lc.style.opacity=1; }
+    },{passive:true});
+    document.addEventListener("mouseleave",function(){ lc.style.opacity=0; lcTrail.style.opacity=0; });
+
+    var LC_SEL=".tag,.primary,.ghost,a,button,.portrait .frame,.tg";
+    document.addEventListener("mouseover",function(e){
+      var el=e.target.closest(LC_SEL);
+      if(el){ hoverEl=el; lc.classList.add("merge"); lcTrail.style.opacity=0; }
+    });
+    document.addEventListener("mouseout",function(e){
+      if(!hoverEl) return;
+      var to=e.relatedTarget;
+      if(!to || !to.closest || !to.closest(LC_SEL)){ hoverEl=null; lc.classList.remove("merge"); }
+    });
+
+    function lcFrame(){
+      requestAnimationFrame(lcFrame);
+      cx += (mx-cx)*0.35; cy += (my-cy)*0.35;
+      var vx=cx-pcx, vy=cy-pcy; pcx=cx; pcy=cy;
+      tx += (cx-tx)*0.12; ty += (cy-ty)*0.12;
+      var speed=Math.min(Math.hypot(vx,vy),20);
+
+      if(hoverEl){
+        var r=hoverEl.getBoundingClientRect();
+        var pad=8;
+        var tw=r.width+pad*2, th=r.height+pad*2;
+        var tl=r.left-pad, tt=r.top-pad;
+        var cs=getComputedStyle(hoverEl);
+        var er=parseFloat(cs.borderRadius)||10;
+        w += (tw-w)*0.22; h += (th-h)*0.22;
+        left += (tl-left)*0.22; top += (tt-top)*0.22;
+        rad += ((er+pad)-rad)*0.22;
+        lc.style.transform="";
+      }else{
+        w += (BASE-w)*0.25; h += (BASE-h)*0.25;
+        left = cx-w/2; top = cy-h/2;
+        rad += (w/2-rad)*0.25;
+        var angle=Math.atan2(vy,vx)*180/Math.PI;
+        var stretch=Math.min(speed/20,1);
+        var sx=1+stretch*0.85, sy=1-stretch*0.32;
+        lc.style.transform="rotate("+angle.toFixed(1)+"deg) scale("+sx.toFixed(3)+","+sy.toFixed(3)+")";
+      }
+
+      lc.style.left=left.toFixed(1)+"px";
+      lc.style.top=top.toFixed(1)+"px";
+      lc.style.width=w.toFixed(1)+"px";
+      lc.style.height=h.toFixed(1)+"px";
+      lc.style.borderRadius=rad.toFixed(1)+"px";
+
+      lcTrail.style.left=(tx-7).toFixed(1)+"px";
+      lcTrail.style.top=(ty-7).toFixed(1)+"px";
+      var tOp = (hoverEl || !started) ? 0 : Math.min(speed/14,0.6);
+      lcTrail.style.opacity = tOp;
+      var tScale=0.6+Math.min(speed/16,0.8);
+      lcTrail.style.transform="scale("+tScale.toFixed(2)+")";
+    }
+    requestAnimationFrame(lcFrame);
   }
 
   /* ---- reveal on scroll ---- */
