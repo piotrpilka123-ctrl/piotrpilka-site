@@ -85,7 +85,7 @@
 
   /* liquid cursor: glossy water-drop that smears with motion and engulfs interactive elements */
   @media (hover:hover) and (pointer:fine){
-    *{cursor:none}
+    *{cursor:none!important}
     #lc,#lc-trail{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;opacity:0;will-change:transform,width,height,left,top,border-radius}
     #lc-trail{
       width:14px;height:14px;border-radius:50%;
@@ -101,13 +101,17 @@
       transition:background .2s ease, box-shadow .2s ease;
     }
     #lc.merge{
+      backdrop-filter:blur(9px) saturate(180%) brightness(1.08);
+      -webkit-backdrop-filter:blur(9px) saturate(180%) brightness(1.08);
       background:
-        radial-gradient(circle at 24% 18%, rgba(255,255,255,.5) 0%, transparent 42%),
-        color-mix(in srgb,var(--accent) 12%,transparent);
+        linear-gradient(128deg, rgba(255,255,255,.4) 0%, rgba(255,255,255,.04) 30%, rgba(255,255,255,.02) 55%, rgba(255,255,255,.22) 78%, rgba(255,255,255,.4) 100%),
+        color-mix(in srgb,var(--accent) 10%,transparent);
       box-shadow:
-        inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 70%,transparent),
-        inset 0 0 20px color-mix(in srgb,var(--accent) 25%,transparent),
-        0 8px 26px color-mix(in srgb,var(--accent) 22%,transparent);
+        inset 0 1.5px 1.5px rgba(255,255,255,.95),
+        inset 0 -6px 10px -4px color-mix(in srgb,var(--accent) 45%,transparent),
+        inset 0 0 0 1px color-mix(in srgb,var(--accent) 50%,transparent),
+        0 12px 34px -6px color-mix(in srgb,var(--accent) 30%,transparent),
+        0 1px 2px rgba(0,0,0,.1);
     }
   }
 
@@ -539,9 +543,10 @@
         <h2 data-en="Contact details">Dane kontaktowe</h2>
       </div>
       <div class="clist">
-        <div class="ci info">
-          <span class="ck">E-mail</span><span class="cv">piotr.pilka123@gmail.com</span>
-        </div>
+        <button class="ci" id="email" type="button">
+          <span class="ck">E-mail</span><span class="cv" id="email-v">piotr.pilka123@gmail.com</span>
+          <span class="arw"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></svg></span>
+        </button>
         <div class="ci info">
           <span class="ck" data-en="Phone">Telefon</span><span class="cv">694 552 333</span>
         </div>
@@ -663,6 +668,16 @@
       })["catch"](function(){ window.open(cv.href,"_blank","noopener"); });
     });
   }
+
+  /* ---- email copy ---- */
+  var eBtn=document.getElementById("email");
+  eBtn.addEventListener("click",function(){
+    var v=document.getElementById("email-v"), orig=v.textContent;
+    function flash(m){ v.textContent=m; v.classList.add("copied"); setTimeout(function(){ v.textContent=orig; v.classList.remove("copied"); },1400); }
+    try{
+      navigator.clipboard.writeText("piotr.pilka123@gmail.com").then(function(){ flash(root.getAttribute("lang")==="en"?"copied!":"skopiowano!"); },function(){ flash("piotr.pilka123@gmail.com"); });
+    }catch(e){ flash("piotr.pilka123@gmail.com"); }
+  });
 
   /* ---- discord copy ---- */
   var dBtn=document.getElementById("discord");
