@@ -708,10 +708,10 @@
       var bg=getComputedStyle(document.body).backgroundColor||"rgb(13,14,18)";
       var f=root.getAttribute("data-theme");
       var dark = f==="dark" || (f!=="light" && window.matchMedia("(prefers-color-scheme:dark)").matches);
-      cv.style.opacity = dark ? "0.5" : "0.12";
+      cv.style.opacity = dark ? "0.5" : "0.24";
       var a=toRGB(acc), b=toRGB(bg);
       return {
-        mid:"rgba("+a[0]+","+a[1]+","+a[2]+",0.72)",
+        mid: dark ? "rgba("+a[0]+","+a[1]+","+a[2]+",0.72)" : "rgba("+a[0]+","+a[1]+","+a[2]+",0.88)",
         head: dark ? "rgba(234,234,255,0.95)" : "rgba("+a[0]+","+a[1]+","+a[2]+",1)",
         fade:"rgba("+b[0]+","+b[1]+","+b[2]+",0.18)"
       };
